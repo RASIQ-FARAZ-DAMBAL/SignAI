@@ -240,7 +240,6 @@ SignAI/
 </p>
 
 ---
----
 ## 👨‍💻 Author
 
 **Rasiq Faraz Dambal**
