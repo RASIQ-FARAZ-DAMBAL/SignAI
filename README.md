@@ -229,7 +229,18 @@ SignAI/
 * Emotion-aware gesture understanding
 
 ---
+## 📄 Project Documentation
 
+<p align="center">
+  <a href="https://github.com/user-attachments/files/27043080/SignAI_Synopsis.pdf">[SignAI_Synopsis.pdf](https://github.com/user-attachments/files/27043192/SignAI_Synopsis.pdf)
+
+    <img src="https://img.icons8.com/color/96/pdf.png" width="80"/>
+    <br>
+    <b>View Project Synopsis</b>
+  </a>
+</p>
+
+---
 ## 👨‍💻 Author
 
 **Rasiq Faraz Dambal**
