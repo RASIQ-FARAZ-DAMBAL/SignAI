@@ -10,6 +10,7 @@
   <img src="https://img.shields.io/badge/FastAPI-0.111-green">
   <img src="https://img.shields.io/badge/MediaPipe-0.10-orange">
   <img src="https://img.shields.io/badge/ML-SVM-yellow">
+
   <img src="https://img.shields.io/badge/LLM-LLaMA%203.1-purple">
   <img src="https://img.shields.io/badge/License-MIT-lightgrey">
 </p>
@@ -185,7 +186,7 @@ SignAI/
 ### 🖥 Home Screen
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7b400f80-4438-4ff8-9fcb-a6ff5d4fb8db" width="85%" style="border-radius:10px;">
+  <img alt="Screenshot 1" src="https://github.com/user-attachments/assets/15e1a4bf-74a7-4b6d-ba2c-a2a6bb4adbbe" width="85%" style="border-radius:10px;/>
 </p>
 
 <p align="center">
@@ -197,7 +198,7 @@ SignAI/
 ### 💬 AI Conversation Interface
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/39b51454-4921-421c-9ee9-9da5497ded99" width="85%" style="border-radius:10px;">
+  <img alt="Screenshot 2" src="https://github.com/user-attachments/assets/593fe8c2-2a2a-4cb2-8390-67d4a31aa298" width="85%" style="border-radius:10px;/>
 </p>
 
 <p align="center">
@@ -209,7 +210,8 @@ SignAI/
 ### 🤟 Sign Output Visualization
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bbe23a2d-4534-4b22-b261-e39be496bc77" width="85%" style="border-radius:10px;">
+  <img alt="Screenshot 3" src="https://github.com/user-attachments/assets/aa28d7b9-e5cf-433f-bcf8-6916cc86810c" width="85%" style="border-radius:10px;/>
+
 </p>
 
 <p align="center">
