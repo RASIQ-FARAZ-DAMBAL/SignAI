@@ -186,7 +186,7 @@ SignAI/
 ### 🖥 Home Screen
 
 <p align="center">
-  <img alt="Screenshot 1" src="https://github.com/user-attachments/assets/15e1a4bf-74a7-4b6d-ba2c-a2a6bb4adbbe" width="85%" style="border-radius:10px;/>
+  <img alt="Screenshot 1" src="https://github.com/user-attachments/assets/15e1a4bf-74a7-4b6d-ba2c-a2a6bb4adbbe" width="100%">
 </p>
 
 <p align="center">
@@ -198,7 +198,7 @@ SignAI/
 ### 💬 AI Conversation Interface
 
 <p align="center">
-  <img alt="Screenshot 2" src="https://github.com/user-attachments/assets/593fe8c2-2a2a-4cb2-8390-67d4a31aa298" width="85%" style="border-radius:10px;/>
+  <img alt="Screenshot 2" src="https://github.com/user-attachments/assets/593fe8c2-2a2a-4cb2-8390-67d4a31aa298" width="100%">
 </p>
 
 <p align="center">
@@ -210,8 +210,7 @@ SignAI/
 ### 🤟 Sign Output Visualization
 
 <p align="center">
-  <img alt="Screenshot 3" src="https://github.com/user-attachments/assets/aa28d7b9-e5cf-433f-bcf8-6916cc86810c" width="85%" style="border-radius:10px;/>
-
+  <img alt="Screenshot 3" src="https://github.com/user-attachments/assets/aa28d7b9-e5cf-433f-bcf8-6916cc86810c" width="100%">
 </p>
 
 <p align="center">
@@ -219,6 +218,7 @@ SignAI/
 </p>
 
 ---
+
 
 ## 🔮 Future Roadmap
 
