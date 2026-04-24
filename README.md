@@ -1,4 +1,4 @@
-<h1 align="center">SignAI 🤟</h1>
+<h1 align="center">SignAI </h1>
 <h3 align="center">Real-Time Sign Language ↔ Intelligent Communication System</h3>
 
 <p align="center">
