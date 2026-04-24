@@ -183,7 +183,7 @@ SignAI/
 ### 🖥 Home Screen
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/7b400f80-4438-4ff8-9fcb-a6ff5d4fb8db" width="85%">
+  <img width="85" alt="Screenshot 1" src="https://github.com/user-attachments/assets/5fb871e5-192d-4a41-b83e-ea4ad0736685" />
 </p>
 <p align="center">
   <sub>Real-time interface displaying live sign detection and system layout</sub>
@@ -194,7 +194,8 @@ SignAI/
 ### 💬 AI Conversation Interface
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/39b51454-4921-421c-9ee9-9da5497ded99" width="85%">
+  <img width="85" alt="Screenshot 2" src="https://github.com/user-attachments/assets/8a74e162-93bf-4c49-a13c-6731a77ff614" />
+
 </p>
 <p align="center">
   <sub>Context-aware conversational response powered by LLM integration</sub>
@@ -205,7 +206,8 @@ SignAI/
 ### 🤟 Sign Output Visualization
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/bbe23a2d-4534-4b22-b261-e39be496bc77" width="85%">
+  <img width="85" alt="Screenshot 3" src="https://github.com/user-attachments/assets/ce656d43-74e7-4877-9b85-e2ac9a40b238" />
+
 </p>
 <p align="center">
   <sub>Generated sign output representing AI responses visually</sub>
