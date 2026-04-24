@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+venv/
+.env
+models/
+pretrained_data/
+hand_landmarker.task
+.vscode/
+*.pkl

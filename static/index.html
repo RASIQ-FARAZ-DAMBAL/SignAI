@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SignAI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body {
+  --bg-gradient: linear-gradient(145deg, #1a1e2b 0%, #151922 100%);
+  --surface: rgba(28, 32, 40, 0.85);
+  --surface-solid: #1c2028;
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-glow: rgba(16, 163, 127, 0.3);
+  --text-primary: #f0f3f8;
+  --text-secondary: #9aa4b8;
+  --text-muted: #5f6a7c;
+  --accent: #10a37f;
+  --accent-soft: #1a7f64;
+  --user-bubble: #2a3342;
+  --bot-bubble: transparent;
+  --shadow-lg: 0 20px 35px -8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.02);
+  --glass-bg: rgba(18, 22, 28, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+
+body.light {
+  --bg-gradient: linear-gradient(145deg, #f4f6fa 0%, #e9ecf2 100%);
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-solid: #ffffff;
+  --border-light: rgba(0, 0, 0, 0.06);
+  --border-glow: rgba(16, 163, 127, 0.2);
+  --text-primary: #1e2329;
+  --text-secondary: #4a5568;
+  --text-muted: #7e8a9a;
+  --user-bubble: #eef2f7;
+  --shadow-lg: 0 15px 30px -10px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.02);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
+#sidebar {
+  width: 72px; min-width: 72px;
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  border-right: 1px solid var(--border-light);
+  display: flex; flex-direction: column;
+  justify-content: space-between; align-items: center;
+  padding: 20px 0 24px;
+  box-shadow: 2px 0 20px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.sicon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px; cursor: pointer;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.sicon:hover { background: rgba(16,163,127,0.12); color: var(--accent); transform: scale(1.02); }
+.stop, .sbot { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; min-width: 0; }
+
+/* ── RIGHT PANEL ── */
+#rightpanel {
+  width: 340px;
+  min-width: 340px;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 12px 12px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.rp-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: 1.5px solid var(--accent);
+  border-radius: 20px;
+  background: var(--surface-solid);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(16,163,127,0.08);
+}
+
+.rp-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border-light);
+  flex-shrink: 0;
+  background: rgba(0,0,0,0.15);
+  border-radius: 20px 20px 0 0;
+}
+.rp-label span { color: var(--accent); }
+
+.rp-divider { display: none; }
+
+#topbar {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--surface);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
+  display: flex; align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+#chatbox {
+  flex: 1; overflow-y: auto;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 20px 20px; gap: 18px;
+  scroll-behavior: smooth;
+}
+
+#welcome { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+#welcome h1 {
+  font-size: 32px; font-weight: 500; text-align: center;
+  background: linear-gradient(135deg, var(--text-primary), var(--accent));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  opacity: 0.8; letter-spacing: -0.02em;
+}
+
+.msg {
+  width: 100%; max-width: 720px;
+  padding: 14px 20px; font-size: 15px; line-height: 1.6;
+  border-radius: 20px; word-break: break-word;
+  animation: fadeInUp 0.25s ease-out;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+@keyframes fadeInUp { 0%{opacity:0;transform:translateY(10px)} 100%{opacity:1;transform:translateY(0)} }
+
+.msg.user {
+  background: var(--user-bubble); align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  width: fit-content; max-width: 720px;
+  border: 1px solid var(--border-light); backdrop-filter: blur(4px);
+}
+.msg.bot { background: var(--bot-bubble); align-self: flex-start; border-bottom-left-radius: 6px; border: 1px solid var(--border-light); }
+.msg.typing { background: transparent; color: var(--text-muted); font-style: italic; font-size: 14px; align-self: flex-start; padding-left: 24px; }
+
+#bottombar { padding: 14px 24px 24px; background: transparent; flex-shrink: 0; }
+
+#inputwrap {
+  display: flex; align-items: center;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border-radius: 34px;
+  padding: 8px 12px 8px 18px; gap: 10px;
+  max-width: 760px; margin: 0 auto;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition);
+}
+#inputwrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--border-glow), var(--shadow-lg); }
+
+#plusbtn {
+  background: none; border: none; color: var(--text-secondary);
+  font-size: 26px; cursor: pointer; line-height: 1;
+  width: 36px; height: 36px; border-radius: 30px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+}
+#plusbtn:hover { background: rgba(16,163,127,0.15); color: var(--accent); }
+
+#msginput {
+  flex: 1; min-width: 0; background: transparent;
+  border: none; outline: none; color: var(--text-primary);
+  font-size: 15px; padding: 10px 0;
+}
+#msginput::placeholder { color: var(--text-muted); font-weight: 400; }
+
+#sendbtn {
+  background: var(--accent); border: none; border-radius: 40px;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: white;
+  transition: var(--transition);
+  box-shadow: 0 4px 10px rgba(16,163,127,0.3);
+  flex-shrink: 0;
+}
+#sendbtn:hover { background: #0e8e6d; transform: scale(1.02); }
+#sendbtn svg { width: 20px; height: 20px; fill: white; }
+
+#signcontrols { display: none; align-items: center; gap: 6px; flex-shrink: 0; }
+#signcontrols.visible { display: flex; }
+
+.signctrl {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-light);
+  border-radius: 30px; color: var(--text-secondary);
+  font-size: 12px; font-weight: 500;
+  padding: 6px 12px; cursor: pointer; white-space: nowrap;
+  transition: var(--transition); backdrop-filter: blur(4px);
+}
+.signctrl:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.signctrl.danger:hover { background: #ef4444; border-color: #ef4444; }
+
+#handbtn {
+  background: rgba(16,163,127,0.12);
+  border: 1px solid var(--border-light); border-radius: 40px;
+  width: 46px; height: 46px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 8px; flex-shrink: 0;
+  transition: var(--transition); color: var(--text-secondary);
+}
+#handbtn:hover, #handbtn.on { background: var(--accent); border-color: var(--accent); color: white; }
+#handbtn svg { width: 22px; height: 22px; fill: var(--accent); }
+#handbtn:hover svg, #handbtn.on svg { fill: #fff; }
+
+#signbadge { display: none; }
+
+#cambox {
+  width: 100%;
+  overflow: hidden;
+  background: #0b0e14;
+  display: none;
+  flex-shrink: 0;
+}
+#cambox.on { display: block; }
+#cambox video { width: 100%; display: block; aspect-ratio: 4/3; }
+#cambox canvas { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+.camwrap { position: relative; width: 100%; }
+
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 36px; height: 36px; }
+.logo-text {
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #10a37f 0%, #0d7a5f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* SIGN OUTPUT PANEL */
+#signpanel {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  display: none;
+  flex-direction: column;
+}
+#signpanel.on { display: flex; }
+
+#signpanel-header {
+  padding: 10px 16px;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(0,0,0,0.15);
+  flex-shrink: 0;
+}
+#signpanel-header span:first-child { color: var(--accent); }
+#signpanel-status { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+#signpanel-letter {
+  font-size: 56px; font-weight: 700; color: var(--accent);
+  text-align: center; padding: 8px 0 4px;
+  min-height: 76px; line-height: 1;
+  text-shadow: 0 2px 10px rgba(16,163,127,0.3);
+  flex-shrink: 0;
+}
+
+
+
+#signpanel-controls {
+  padding: 10px 16px;
+  background: rgba(0,0,0,0.2);
+  display: flex; align-items: center; gap: 12px;
+  border-top: 1px solid var(--border-light);
+  flex-shrink: 0;
+}
+#signpanel-controls label { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+#speedslider { flex: 1; accent-color: var(--accent); height: 4px; }
+#speedval { font-size: 11px; color: var(--accent); min-width: 44px; text-align: right; font-weight: 600; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <div class="stop">
+    <div class="sicon" onclick="newChat()" title="New conversation">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </div>
+    <div class="sicon" title="Search">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div class="sicon" title="History">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+  </div>
+  <div class="sbot">
+    <div class="sicon" onclick="toggleTheme()" title="Toggle theme">
+      <svg id="themeicon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </div>
+    <div class="sicon" title="Profile">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div class="logo">
+      <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 4C13.3726 4 8 9.37258 8 16V28C8 32.4183 11.5817 36 16 36H24C28.4183 36 32 32.4183 32 28V20C32 15.5817 28.4183 12 24 12H16C11.5817 12 8 15.5817 8 20" stroke="url(#lg)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="16" cy="20" r="2" fill="url(#lg)"/>
+        <circle cx="24" cy="20" r="2" fill="url(#lg)"/>
+        <defs>
+          <linearGradient id="lg" x1="8" y1="4" x2="32" y2="36" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#10a37f"/><stop offset="1" stop-color="#6ee7b7"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <span class="logo-text">SignAI</span>
+    </div>
+  </div>
+
+  <div id="chatbox">
+    <div id="welcome"><h1>What would you like to sign today?</h1></div>
+  </div>
+
+  <div id="bottombar">
+    <div id="inputwrap">
+      <button id="plusbtn" title="Attach">+</button>
+      <input id="msginput" placeholder="Type or sign a message..." autocomplete="off" />
+      <div id="signcontrols">
+        <button class="signctrl" onclick="addSpace()">⎵ Space</button>
+        <button class="signctrl danger" onclick="backspace()">⌫</button>
+        <button class="signctrl danger" onclick="clearInput()">✕</button>
+      </div>
+      <button id="handbtn" title="Sign Language">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20px" height="20px" viewBox="0 0 368 336" enable-background="new 0 0 368 336" xml:space="preserve">
+          <path fill="white" d="M169.468658,337.000000 C153.695053,326.482239 142.038025,311.746185 127.120621,300.781586 C122.088791,297.083099 117.926659,292.534698 114.564888,287.330658 C107.769592,276.811493 98.924736,268.238098 88.971169,260.893738 C79.499115,253.904648 71.622734,245.353134 63.520248,236.976135 C60.512547,233.866547 57.319981,230.934235 54.346306,227.793640 C50.808781,224.057526 47.891071,219.839432 49.642803,214.406281 C51.531635,208.547913 56.764004,206.604614 62.131828,205.830231 C77.859688,203.561325 98.573090,217.219727 103.197357,232.627762 C103.672974,234.212479 104.072624,235.834457 103.564133,237.539871 C103.270432,238.524948 103.241005,239.879089 104.254005,240.221359 C111.108673,242.537277 112.933945,249.506485 117.318184,254.087646 C118.232803,255.043320 119.024811,256.277863 120.145874,256.846741 C125.249207,259.436371 130.268738,263.825775 136.156723,258.318390 C136.493011,258.003845 137.067368,257.822327 137.542877,257.796112 C145.881882,257.336365 151.482559,254.201523 150.808472,244.614197 C150.747650,243.749008 151.353348,242.321869 152.042984,242.000748 C157.414108,239.499847 157.817719,234.579102 158.512482,229.660522 C159.150711,225.142075 163.486069,223.784271 166.346283,221.600464 C166.267990,220.794891 166.364471,220.310654 166.186432,220.167282 C156.715897,212.539322 156.883301,201.145279 154.990723,190.708084 C153.887955,184.626587 158.205353,180.709793 162.952728,177.958389 C170.753876,173.437164 179.437271,171.757477 188.363953,171.765167 C192.713211,171.768921 196.395172,170.799454 200.020569,168.290802 C204.921844,164.899307 210.393997,163.375931 216.587906,164.449783 C219.968979,165.035980 223.611984,164.851822 227.025513,164.311523 C230.776886,163.717743 234.603683,163.559311 237.859589,165.031525 C254.238602,172.437607 272.691223,175.071976 287.269501,186.670761 C291.110077,189.726395 293.887390,192.947800 294.553009,198.011047 C295.055481,201.833588 295.325897,205.629837 295.244507,209.458755 C295.062256,218.032471 294.493927,219.138321 288.144775,224.047180 C288.157471,224.369705 288.049896,224.871063 288.214935,224.988144 C296.381439,230.780853 296.088623,239.523544 295.903687,247.984558 C295.591675,262.260132 294.844055,276.528870 293.291992,290.733887 C292.261810,300.162201 290.922058,309.528198 287.597412,318.513763 C284.998901,325.536774 281.213867,331.670929 275.218079,336.751099 C239.979111,337.000000 204.958206,337.000000 169.468658,337.000000 z"/>
+          <path fill="white" d="M186.742188,144.018921 C183.783768,133.822998 182.102097,123.664902 182.314392,113.618965 C182.425247,108.373581 181.333908,104.105057 180.214706,99.228493 C177.773911,88.593513 175.886414,77.524345 176.924103,66.599648 C177.477066,60.778130 176.448822,56.110889 174.649002,50.742443 C171.169724,40.364483 171.221283,29.411381 173.854019,18.726965 C175.272018,12.972320 178.682709,8.343180 184.857941,6.888329 C192.695938,5.041742 199.115234,8.929866 200.987946,17.153944 C203.742157,29.249107 204.516647,41.512264 201.933044,53.793842 C201.626999,55.248737 200.867691,56.633751 201.577545,58.150246 C207.183945,70.127441 205.838730,83.189186 207.471619,95.787231 C207.839218,98.623291 206.061081,100.823738 205.080551,103.532745 C210.288361,106.430595 211.296310,111.490761 212.411499,116.546242 C214.767487,127.226654 214.454590,138.058762 214.286545,148.872131 C214.217224,153.333313 209.598297,156.278183 204.931854,154.827698 C202.588028,154.099152 200.924728,153.823380 198.537231,155.379150 C194.943130,157.721207 192.407333,154.469391 190.179230,152.147263 C188.176041,150.059540 187.766830,147.078506 186.742188,144.018921 z"/>
+          <path fill="white" d="M153.573944,97.582054 C156.009674,105.575363 159.278290,112.961029 159.395889,121.118050 C159.416763,122.564751 160.258148,123.540787 161.078323,124.621620 C169.212555,135.340988 172.395584,147.753845 173.302597,160.909485 C173.501617,163.796005 173.060440,166.332397 169.201126,166.286179 C167.921310,166.270844 167.279709,167.450928 166.474991,168.290726 C164.862869,169.973083 163.287003,171.712982 161.514816,173.215179 C154.335495,179.300751 150.568069,178.592484 146.457306,170.282974 C142.087402,161.449677 138.082657,152.264923 136.462662,142.657272 C135.390320,136.297562 133.209854,130.826294 130.953125,124.966911 C127.235870,115.315361 123.826035,105.201355 125.979599,94.415314 C126.242493,93.098595 125.517143,92.259834 124.811119,91.294167 C115.184822,78.127541 115.322578,63.370037 118.269051,48.349667 C119.247772,43.360409 122.478363,39.514538 127.975014,38.819698 C133.545105,38.115574 137.755753,40.711601 140.392593,45.471458 C146.823273,57.079765 150.016983,69.491951 148.652344,82.823166 C148.432434,84.971428 148.678925,86.745758 149.838242,88.481873 C151.619324,91.149071 152.648727,94.132690 153.573944,97.582054 z"/>
+          <path fill="white" d="M257.263855,95.956955 C256.904327,100.744385 256.454773,105.051712 256.240967,109.370705 C256.089325,112.433357 253.431610,113.695801 251.676987,116.130394 C256.227295,118.364029 256.439636,122.364891 256.409698,126.677353 C256.351776,135.010544 256.353394,143.314987 254.415604,151.502640 C253.372574,155.909805 251.776840,158.016525 246.301437,157.905563 C242.297256,157.824417 238.761368,155.834091 234.822906,156.392563 C232.917145,156.662796 232.354935,155.025238 231.715179,153.673691 C225.521103,140.588333 226.408798,127.634781 232.568253,114.837708 C233.166931,113.593857 233.662384,112.604736 233.315445,111.131851 C230.447784,98.957443 230.793991,86.888397 234.889862,75.017143 C235.267487,73.922661 235.043549,73.167183 234.622620,72.220512 C229.240738,60.116924 230.173401,47.496796 232.084732,34.949924 C233.047333,28.631054 237.864410,24.358419 243.402267,23.801964 C249.631805,23.176003 254.452652,25.621925 257.606842,31.100189 C261.348053,37.598087 261.933289,44.750816 261.156250,51.931889 C260.392883,58.987114 260.184357,66.266205 256.275970,72.633942 C255.881958,73.275887 255.498718,74.435791 255.803162,74.917946 C259.982422,81.536644 256.599701,88.652481 257.263855,95.956955 z"/>
+          <path fill="white" d="M290.733582,180.984253 C283.351044,179.112289 278.037079,174.999954 274.524933,168.606796 C273.326477,166.425278 273.249786,163.945847 273.952423,161.786560 C276.168640,154.975677 276.541565,147.155960 283.632904,142.802338 C284.587708,142.216156 284.627777,141.180557 284.675537,140.147446 C285.119568,130.547455 286.993958,121.374687 292.888489,113.455627 C294.124207,111.795509 293.132690,110.321869 292.750702,108.734711 C290.125763,97.828751 290.834167,87.239441 296.331390,77.299500 C299.727448,71.158936 304.997803,68.518173 310.682617,69.605095 C315.755096,70.574928 319.139404,74.779999 320.373962,81.586327 C322.290924,92.155243 319.807129,102.037643 315.819916,111.722824 C314.917236,113.915504 313.180298,115.021149 311.268707,115.987297 C314.481903,125.348907 308.357727,145.376083 300.666626,150.568146 C303.192932,160.512192 298.471680,168.945740 294.683258,177.569473 C294.004242,179.115128 292.755035,180.277725 290.733582,180.984253 z"/>
+        </svg>
+      </button>
+      <button id="sendbtn" onclick="sendChat()" title="Send message">
+        <svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="signbadge"><span id="badgeletter"></span><span id="badgeconf"></span></div>
+
+<!-- RIGHT PANEL -->
+<div id="rightpanel">
+
+  <!-- TOP: Sign Output -->
+  <div class="rp-section">
+    <div class="rp-label"><span>Sign Output</span></div>
+
+    <!-- placeholder when no reply yet -->
+    <div id="sign-placeholder" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--text-muted);font-size:13px;background:#0f131a;">
+      <svg width="36" height="36" viewBox="0 0 368 336" fill="none">
+        <path fill="currentColor" opacity="0.35" d="M169.47,337C153.7,326.5 142,311.7 127.1,300.8C122.1,297.1 117.9,292.5 114.6,287.3C107.8,276.8 98.9,268.2 89,260.9C79.5,253.9 71.6,245.4 63.5,237C60.5,233.9 57.3,230.9 54.3,227.8C50.8,224.1 47.9,219.8 49.6,214.4C51.5,208.5 56.8,206.6 62.1,205.8C77.9,203.6 98.6,217.2 103.2,232.6C104.1,235.8 103.6,237.5 104.3,240.2C111.1,242.5 112.9,249.5 117.3,254.1C120.1,256.8 125.2,259.4 136.2,258.3C145.9,257.3 151.5,254.2 150.8,244.6C157.4,239.5 158.5,229.7 166.3,221.6C156.7,212.5 155,190.7 163,178C170.8,173.4 179.4,171.8 188.4,171.8C196.4,168.3 210.4,163.4 216.6,164.4C227,164.3 234.6,163.6 237.9,165C254.2,172.4 272.7,175.1 287.3,186.7C294.6,198 295.2,209.5 288.1,224C296.4,230.8 295.9,248 293.3,290.7C290.9,309.5 281.2,331.7 275.2,336.8L169.47,337z"/>
+      </svg>
+      AI reply will sign here
+    </div>
+
+    <div id="signpanel">
+      <div id="signpanel-header">
+        <span>Now signing</span>
+        <span id="signpanel-status">idle</span>
+      </div>
+      <div id="signpanel-letter">—</div>
+      <div id="signimg-wrap" style="flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#0f131a;padding:12px;">
+        <img id="signimg" src="" alt="" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;display:none;"/>
+        <span id="signimg-fallback" style="font-size:80px;font-weight:700;color:var(--accent);display:none;">—</span>
+      </div>
+      <div id="signpanel-controls">
+        <label>Speed</label>
+        <input type="range" id="speedslider" min="200" max="1500" value="700" step="50">
+        <span id="speedval">700ms</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rp-divider"></div>
+
+  <!-- BOTTOM: Live Camera -->
+  <div style="flex-shrink:0;border:1.5px solid var(--accent);border-radius:20px;overflow:hidden;background:var(--surface-solid);box-shadow:0 8px 32px rgba(0,0,0,0.4),0 0 0 1px rgba(16,163,127,0.08);">
+    <div class="rp-label" style="border-radius:0;"><span>Live Input</span></div>
+
+    <!-- camera feed -->
+    <div class="camwrap" id="cambox">
+      <video id="vid" autoplay playsinline muted></video>
+      <canvas id="cvs"></canvas>
+    </div>
+
+    <!-- placeholder when off -->
+    <div id="cam-placeholder" style="width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px;flex-direction:column;gap:8px;background:#0b0e14;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      Camera off — click 🤟 to start
+    </div>
+  </div><!-- end camera card -->
+
+</div><!-- end rightpanel -->
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script>
+let camOn=false,camReady=false;
+let buf=[],lastSmooth='',lastTime=0,curText='';
+let frames=0,predictPending=false;
+let signQueue=[],signPlaying=false;
+
+const HAND_CONNECTIONS=[
+  [0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],
+  [0,9],[9,10],[10,11],[11,12],[0,13],[13,14],[14,15],[15,16],
+  [0,17],[17,18],[18,19],[19,20],[5,9],[9,13],[13,17]
+];
+
+
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  const isLight=document.body.classList.contains('light');
+  document.getElementById('themeicon').innerHTML=isLight
+    ?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    :'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+
+function newChat(){
+  document.getElementById('chatbox').innerHTML='<div id="welcome"><h1>What would you like to sign today?</h1></div>';
+  curText=''; document.getElementById('msginput').value='';
+  // clear server-side chat history
+  fetch('/clear_history', {method:'POST'}).catch(()=>{});
+}
+
+function addSpace(){curText+=' ';document.getElementById('msginput').value=curText;document.getElementById('msginput').focus();}
+function backspace(){if(!curText.length)return;curText=curText.slice(0,-1);document.getElementById('msginput').value=curText;document.getElementById('msginput').focus();}
+function clearInput(){curText='';document.getElementById('msginput').value='';document.getElementById('msginput').focus();}
+document.getElementById('msginput').addEventListener('input',function(){curText=this.value;});
+
+document.getElementById('speedslider').addEventListener('input',function(){
+  document.getElementById('speedval').innerText=this.value+'ms';
+});
+
+document.getElementById('handbtn').addEventListener('click',function(){
+  camOn=!camOn;
+  document.getElementById('cambox').classList.toggle('on',camOn);
+  document.getElementById('handbtn').classList.toggle('on',camOn);
+  document.getElementById('signcontrols').classList.toggle('visible',camOn);
+  document.getElementById('cam-placeholder').style.display = camOn ? 'none' : 'flex';
+  if(camOn&&!camReady){startCam();camReady=true;}
+});
+
+function startCam(){
+  const vid=document.getElementById('vid'),cvs=document.getElementById('cvs'),ctx=cvs.getContext('2d');
+  navigator.mediaDevices.getUserMedia({video:true}).then(s=>{vid.srcObject=s;}).catch(e=>console.error('cam:',e));
+
+  const mp=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  mp.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:0.7,minTrackingConfidence:0.7});
+
+  mp.onResults(async function(res){
+    cvs.width=vid.videoWidth||640; cvs.height=vid.videoHeight||480;
+    ctx.clearRect(0,0,cvs.width,cvs.height);
+    const badge=document.getElementById('signbadge');
+    const bl=document.getElementById('badgeletter'),bc=document.getElementById('badgeconf');
+    if(!res.multiHandLandmarks||!res.multiHandLandmarks.length){
+      predictPending=false;buf=[];lastSmooth='';lastTime=0;badge.style.opacity='0.3';bl.innerText='–';bc.innerText='no hand';return;
+    }
+    const lm=res.multiHandLandmarks[0];
+    ctx.strokeStyle='#38bdf8';ctx.lineWidth=1.5;
+    for(const[s,e]of HAND_CONNECTIONS){ctx.beginPath();ctx.moveTo(lm[s].x*cvs.width,lm[s].y*cvs.height);ctx.lineTo(lm[e].x*cvs.width,lm[e].y*cvs.height);ctx.stroke();}
+    ctx.fillStyle='#22c55e';
+    for(const p of lm){ctx.beginPath();ctx.arc(p.x*cvs.width,p.y*cvs.height,4,0,2*Math.PI);ctx.fill();}
+    if(++frames%4!==0)return;  // every 4th frame instead of 3rd — reduces predict load
+    let c=lm.map(p=>[p.x,p.y,p.z]);
+    const w=c[0];c=c.map(p=>[p[0]-w[0],p[1]-w[1],p[2]-w[2]]);
+    const mx=Math.max(...c.flat().map(Math.abs));if(mx)c=c.map(p=>p.map(v=>v/mx));
+    const features=c.flat();
+    if(predictPending)return;  // skip if previous predict still in flight
+    predictPending=true;
+    try{
+      const r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({features})});
+      const d=await r.json();if(!d.prediction){predictPending=false;return;}
+      const pred=d.prediction,conf=d.confidence;
+      badge.style.opacity='1';bl.innerText=pred;bc.innerText=Math.round(conf*100)+'%';
+      buf.push(pred);if(buf.length>7)buf.shift();
+      const cnt={};buf.forEach(l=>cnt[l]=(cnt[l]||0)+1);
+      const smooth=Object.keys(cnt).reduce((a,b)=>cnt[a]>cnt[b]?a:b);
+      if(conf>0.75){
+        if(smooth!==lastSmooth){lastSmooth=smooth;lastTime=Date.now();}
+        else if(Date.now()-lastTime>600){
+          curText+=smooth;
+          const inp=document.getElementById('msginput');
+          inp.value=curText;
+          inp.style.outline='2px solid var(--accent)';
+          setTimeout(()=>inp.style.outline='',300);
+          lastTime=Date.now()+9999;
+        }
+      }else{lastSmooth='';lastTime=0;}
+    }catch(e){}
+    finally{predictPending=false;}
+  });
+
+  const cam=new Camera(vid,{onFrame:async()=>{try{await mp.send({image:vid});}catch(e){}},width:640,height:480});
+  cam.start();
+}
+
+// ── HAND IMAGE PRELOADER ──
+// Preloads /static/hands/A.png … Z.png + 1-9.png silently on load.
+// Falls back to big letter text if image missing.
+const handImages = {};
+(function preloadHandImages(){
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789'.split('');
+  chars.forEach(c => {
+    const img = new Image();
+    img.onload  = () => { handImages[c] = img; };
+    img.onerror = () => { handImages[c] = null; };
+    img.src = `/static/hands/${c}.png`;
+  });
+})();
+
+function fingerspell(text){
+  const letters = text.toUpperCase().split('').filter(c => /[A-Z1-9]/.test(c));
+  if(!letters.length) return;
+  document.getElementById('signpanel').classList.add('on');
+  document.getElementById('sign-placeholder').style.display='none';
+  document.getElementById('signpanel-status').innerText='playing';
+  signQueue = letters.map((l,i) => ({letter:l, index:i}));
+  if(!signPlaying) playNextSign();
+}
+
+function playNextSign(){
+  if(!signQueue.length){
+    document.getElementById('signpanel-status').innerText='done';
+    document.getElementById('signpanel-letter').innerText='✓';
+    document.getElementById('signimg').style.display='none';
+    document.getElementById('signimg-fallback').style.display='none';
+    signPlaying=false; return;
+  }
+  signPlaying=true;
+  const {letter} = signQueue.shift();
+  const speed    = parseInt(document.getElementById('speedslider').value);
+
+  // update letter badge
+  document.getElementById('signpanel-letter').innerText = letter;
+
+  // show image or fallback text
+  const img     = document.getElementById('signimg');
+  const fallback= document.getElementById('signimg-fallback');
+  const src     = handImages[letter];
+
+  if(src && src.naturalWidth > 0){
+    img.src              = src.src;
+    img.style.opacity    = '0';
+    img.style.display    = 'block';
+    fallback.style.display = 'none';
+    // fade in
+    let start = null;
+    const fadeIn = (ts) => {
+      if(!start) start=ts;
+      const p = Math.min((ts-start)/(speed*0.4), 1);
+      img.style.opacity = p;
+      if(p < 1) requestAnimationFrame(fadeIn);
+    };
+    requestAnimationFrame(fadeIn);
+  } else {
+    // no image — show big letter as fallback
+    img.style.display      = 'none';
+    fallback.innerText     = letter;
+    fallback.style.display = 'block';
+  }
+
+  // move to next letter after `speed` ms
+  setTimeout(() => { signPlaying=false; setTimeout(playNextSign, 80); }, speed);
+}
+
+
+document.getElementById('msginput').addEventListener('keydown',function(e){if(e.key==='Enter')sendChat();});
+
+async function sendChat(){
+  const el=document.getElementById('msginput');
+  const raw=el.value.trim()||curText.trim();
+  if(!raw) return;
+  el.value=''; curText='';
+  const w=document.getElementById('welcome');if(w)w.remove();
+  addMsg('user', raw);
+  const t=addTyping();
+  try{
+    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:raw, from_sign:camOn})});
+    const d=await r.json();t.remove();
+    const reply=d.reply||'Error';
+    // show correction hint if server corrected the text
+    if(d.corrected && d.used_text && d.used_text.toLowerCase()!==raw.toLowerCase()){
+      const hint=document.createElement('div');
+      hint.className='msg user';
+      hint.style.cssText='opacity:0.5;font-size:12px;font-style:italic;';
+      hint.innerText='✏ corrected to: '+d.used_text;
+      document.getElementById('chatbox').appendChild(hint);
+    }
+    addMsg('bot',reply);speak(reply);fingerspell(reply);
+  }catch{t.remove();addMsg('bot','❌ Could not reach AI.');}
+}
+
+function addMsg(type,text){
+  const d=document.createElement('div');d.className='msg '+type;d.innerText=text;
+  const box=document.getElementById('chatbox');box.appendChild(d);box.scrollTop=box.scrollHeight;return d;
+}
+function addTyping(){
+  const d=document.createElement('div');d.className='msg typing';d.innerText='SignAI is thinking';
+  const box=document.getElementById('chatbox');box.appendChild(d);box.scrollTop=box.scrollHeight;return d;
+}
+function speak(t){if(!t||!t.trim())return;try{speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(t));}catch(e){}}
+</script>
+</body>
+</html>
