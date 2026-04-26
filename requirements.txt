@@ -1,0 +1,26 @@
+# ── Web server ──────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+python-multipart==0.0.9
+
+# ── Environment ─────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── ML / Model ──────────────────────────────────────────
+numpy==1.26.4
+scikit-learn==1.4.2
+joblib==1.4.2
+
+# ── Hand detection (data collection) ────────────────────
+mediapipe==0.10.21
+opencv-python==4.9.0.80
+
+# ── LLM (Groq API) ──────────────────────────────────────
+requests==2.31.0
+
+# ── Spell correction ────────────────────────────────────
+pyspellchecker==0.8.1
+
+# ── Text to speech (if using gTTS fallback) ─────────────
+# gTTS==2.5.1          # uncomment if needed
+# pygame==2.5.2        # uncomment if needed
