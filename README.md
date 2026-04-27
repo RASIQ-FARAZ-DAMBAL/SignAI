@@ -232,7 +232,7 @@ SignAI/
 ## 📄 Project Documentation
 
 <p align="center">
-  <a href="SignAI_Synopsis.pdf">
+  <a href="Documentation/SignAI_Synopsis.pdf">
     <img src="https://img.icons8.com/color/96/pdf.png" width="80"/>
     <br>
     <b>View Project Synopsis</b>
